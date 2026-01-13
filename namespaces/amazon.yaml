@@ -1,8 +1,0 @@
-## Safety Project Namespace creation
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: amazon  ## This one entire project
-  labels:
-    environment: development
-    project: amazon
