@@ -1,0 +1,8 @@
+## Safety Project Namespace creation
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: expense  ## This one entire project
+  labels:
+    environment: development
+    project: expense
