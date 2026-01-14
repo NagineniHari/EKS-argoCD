@@ -1,0 +1,73 @@
+apiVersion: v1
+kind: ConfigMap
+metadata: 
+  name: user
+  namespace: safety
+data: 
+  MONGO: "true"
+  REDIS_URL: "redis://redis:6379"
+  MONGO_URL: "mongodb://mongodb:27017/users"
+---
+apiVersion: apps/v1 
+kind: Deployment
+metadata:
+  name: user
+  namespace: safety
+# these are deployment labels
+  labels:
+    project: safety
+    component: user
+    tier: backend
+spec:
+  replicas: 1
+  selector:
+    # these labels are used to select pods
+    matchLabels:
+      project: safety
+      component: user
+      tier: backend
+    # pod definitdion
+  template: 
+    metadata:
+      labels:
+        project: safety
+        component: user
+        tier: backend
+    spec:
+      containers:
+      - name: user
+        image: hanvihanshith/user:v1
+        imagePullPolicy: Always
+        envFrom:
+        - configMapRef:
+            name: user
+        ports: 
+        - name: liveness-port
+          containerPort: 8080
+        readinessProbe:
+          httpGet:
+            path: /health 
+            port: 8080  
+          failureThreshold: 1
+          periodSeconds: 20
+        livenessProbe:
+          httpGet:
+            path: /health 
+            port: 8080  
+          failureThreshold: 1
+          periodSeconds: 20
+---
+apiVersion: v1 
+kind: Service
+metadata: 
+  name: user
+  namespace: safety
+spec:
+  selector:
+    project: safety
+    component: user
+    tier: backend
+  ports:
+    - protocol: TCP
+      port: 8080 ## services port
+      targetPort: 8080 ## container port
